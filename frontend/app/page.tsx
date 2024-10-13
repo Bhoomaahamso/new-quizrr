@@ -22,8 +22,8 @@ export default function Home() {
       <ExamStats />
       <Testimonials />
       <TestSeries />
-      <Syllabus />
-      <Pricing />
+      {/* <Syllabus /> */}
+      {/* <Pricing /> */}
       <FAQ />
       <AMQ />
       <InquiryInfo />

@@ -455,7 +455,11 @@ function OnboardCard() {
     window.location.href = `/onboarding?step=${step + 1}`;
   };
 
-  return (
+  return loading ? (
+    <div>
+      <Loader />
+    </div>
+  ) : (
     <div className="flex flex-col items-center border relative p-6 w-[50%]">
       <div className="-mt-16">
         <div className="bg-[#bf360c] w-fit py-4 px-7 rounded-[100%]">
@@ -463,15 +467,15 @@ function OnboardCard() {
         </div>
       </div>
       <div className="flex flex-col items-center mt-4">
-        {loading ? (
+        {/* {loading ? (
           <div>
             <Loader />
           </div>
-        ) : (
+        ) : ( */}
           <>
             {selin?.[step - 1] && <h1 className="text-xl pb-2">{selin[step - 1].title}</h1>}
             {selin?.[step - 1] && <p>{selin[step - 1].subtitle}</p>}
-            <div className="mt-3 w-full">
+            <div className="mt-3 w-full flex justify-center">
               {selin?.[step - 1] &&
 
                 selin[step - 1].comp(
@@ -487,7 +491,7 @@ function OnboardCard() {
                 )}
             </div>
           </>
-        )}
+        {/* )} */}
       </div>
       <div className="mt-4">
         <Button onClick={handleClick}>Save & Next</Button>
@@ -497,11 +501,3 @@ function OnboardCard() {
 }
 
 export default OnboardCard;
-
-// xilona4100@rowplant.com
-// 1509|oioLTjRTG8GFPJXjy37027HjJiEPRuPE8PoHSStR
-
-// USsP_8j2Id_Nd_UJLeyxSxIr7botM0CYY8xjw4ocCVJsPgLJZ8PKQfxa0WYi_fyHqag
-// {
-// "auth_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfZW1haWwiOiJ4aWxvbmE0MTAwQHJvd3BsYW50LmNvbSIsImFwaV90b2tlbiI6IlVTc1BfOGoySWRfTmRfVUpMZXl4U3hJcjdib3RNMENZWTh4anc0b2NDVkpzUGdMSlo4UEtRZnhhMFdZaV9meUhxYWcifSwiZXhwIjoxNzI4MzcxNzQ4fQ.kJ-LLVR4sg78Rkr89r3TDudTx8PvpEus2zuKuxvw1Dw"
-// }

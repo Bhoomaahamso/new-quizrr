@@ -25,7 +25,7 @@ function TestimonialCard({ name, percentile, text, video }) {
 
           {/* Popup Modal for YouTube Video */}
           <DialogContent className="p-0 max-w-2xl">
-            <div className="aspect-w-16 aspect-h-9">
+            <div className="h-96 w-full">
               <iframe
                 width="100%"
                 height="100%"

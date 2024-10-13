@@ -19,29 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
-
 export function SelectArea({name, areas, keyname, setVal}) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
@@ -63,7 +40,7 @@ console.log('cct', keyname, areas)
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
-        <Command>
+        <Command className="h-52" >
           <CommandInput placeholder={`Search ${name}...`} />
           <CommandList>
             <CommandEmpty>No {name} found.</CommandEmpty>
