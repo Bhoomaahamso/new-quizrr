@@ -18,18 +18,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface Note {
-  id: string;
+  id?: string;
   topic: string;
   content: string;
 }
 
 const Notes: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [currNote, setCurrNote] = useState<Note | null>(null);
+  const [currNote, setCurrNote] = useState<Note>();
   const [search, setSearch] = useState("");
   const [searchedNotes, setSearchedNotes] = useState<Note[]>([]);
   const [open, setOpen] = useState(false);
-  // const [newNote, setNewNote] = useState({ topic: "", content: "" });
+  const [editOpen, setEditOpen] = useState(false);
 
   const getNotes = async () => {
     try {
@@ -39,6 +39,7 @@ const Notes: React.FC = () => {
         },
       });
       setNotes(response.data);
+      console.log("get", response.data);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
@@ -46,14 +47,18 @@ const Notes: React.FC = () => {
 
   const deleteNote = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:8000/user/my-notes/${id}`, {
+      await axios.delete(`http://localhost:8000/user/my-notes/${currNote.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+      console.log("del", id, currNote);
       setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+      getNotes();
     } catch (error) {
       console.error("Error deleting note:", error);
+    } finally {
+      setEditOpen(false);
     }
   };
 
@@ -71,8 +76,9 @@ const Notes: React.FC = () => {
           },
         }
       );
-      setNotes([...notes, response.data]);
-      setCurrNote(response.data);
+      setNotes([...(notes ?? []), response.data]);
+      console.log('first',notes)
+      await getNotes();
     } catch (error) {
       console.error("Error creating note:", error);
     }
@@ -82,6 +88,10 @@ const Notes: React.FC = () => {
     if (!currNote) return;
 
     try {
+      if (currNote.topic.trim() === "") {
+        return;
+      }
+
       const response = await axios.patch(
         `http://localhost:8000/user/my-notes/${currNote.id}`,
         {
@@ -99,14 +109,18 @@ const Notes: React.FC = () => {
           note.id === currNote.id ? response.data : note
         )
       );
+      getNotes();
     } catch (error) {
       console.error("Error updating note:", error);
+    } finally {
+      setEditOpen(false);
     }
   };
 
   const handleCreate = async () => {
     try {
-      if (currNote.topic.trim() === "") {
+      if(!currNote) return
+      if (currNote?.topic.trim() === "") {
         return;
       }
       await createNote({
@@ -144,7 +158,7 @@ const Notes: React.FC = () => {
         />
       </div>
       <div className="">
-        <Dialog open={open} onOpenChange={setOpen} >
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
               onClick={() => setCurrNote({ topic: "", content: "" })}
@@ -157,12 +171,8 @@ const Notes: React.FC = () => {
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Create Note</DialogTitle>
-                {/* <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
-          </DialogDescription> */}
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                {/* <div className="grid grid-cols-4 items-center gap-4"> */}
                 <div className="flex flex-col items-start gap-2">
                   <Label htmlFor="name" className="text-right">
                     Title
@@ -176,7 +186,6 @@ const Notes: React.FC = () => {
                     className="col-span-3"
                   />
                 </div>
-                {/* <div className="grid grid-cols-4 items-center gap-4"> */}
                 <div className="flex flex-col items-start gap-2">
                   <Label htmlFor="username" className="text-right">
                     Content
@@ -192,97 +201,83 @@ const Notes: React.FC = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={handleCreate}>Save changes</Button>
+                <Button onClick={handleCreate}>Add Note</Button>
               </DialogFooter>
             </DialogContent>
           )}
         </Dialog>
       </div>
-      <div className="grid grid-cols-[1fr_3fr] gap-4">
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <h2 className="text-lg font-semibold mb-2">Notebooks</h2>
-          <div className="h-96 overflow-y-auto space-y-2">
-            {(search === "" ? notes : searchedNotes)?.length > 0 ? (
-              (search === "" ? notes : searchedNotes).map((note) => (
-                <div
-                  key={note.id}
-                  className="cursor-pointer bg-yellow-100 hover:bg-yellow-300 p-4 rounded shadow-md transition duration-200 ease-in-out"
-                  onClick={() => setCurrNote(note)}
-                >
-                  <p className="font-medium text-lg text-gray-800">
-                    {note.topic}
-                  </p>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNote(note.id);
-                    }}
-                    variant="destructive"
-                    size="sm"
-                    className="mt-2"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">No notes found</p>
-            )}
-          </div>
-
-          {/* <div className="h-96 overflow-y-auto space-y-2">
-            {(search === "" ? notes : searchedNotes).map((note) => (
+      <div className="grid grid-cols-4 gap-4">
+        {(search === "" ? notes : searchedNotes)?.length > 0 ? (
+          (search === "" ? notes : searchedNotes).map((note) => (
+            <Dialog key={note.id} open={editOpen} onOpenChange={setEditOpen}>
               <div
-                key={note.id}
-                className="cursor-pointer bg-yellow-100 hover:bg-yellow-300 p-2 rounded"
-                onClick={() => setCurrNote(note)}
+                onClick={() => {
+                  setCurrNote(note);
+                  setEditOpen(true);
+                  console.log("nnote", note);
+                }}
+                className="block max-w-sm max-h-96 p-6 cursor-pointer bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
               >
-                <p className="font-medium">{note.topic}</p>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteNote(note.id);
-                  }}
-                  variant="destructive"
-                  size="sm"
-                  className="mt-1"
-                >
-                  Delete
-                </Button>
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-3">
+                  {note.topic}
+                </h5>
+                <p className="font-normal text-gray-700 dark:text-gray-400 overflow-hidden text-ellipsis line-clamp-4">
+                  {note.content}
+                </p>
               </div>
-            ))}
-            {(search === "" ? notes : searchedNotes).length === 0 && (
-              <p>No notes found</p>
-            )}
-          </div> */}
-        </div>
-        <div className="bg-white p-4 rounded-lg">
-          {currNote ? (
-            <div className="flex flex-col h-full">
-              <div className="grid grid-rows-[auto_1fr] gap-4 flex-grow">
-                <Input
-                  value={currNote.topic}
-                  onChange={(e) =>
-                    setCurrNote({ ...currNote, topic: e.target.value })
-                  }
-                  className="text-xl font-bold"
-                />
-                <Textarea
-                  value={currNote.content}
-                  onChange={(e) =>
-                    setCurrNote({ ...currNote, content: e.target.value })
-                  }
-                  className="flex-grow"
-                />
-              </div>
-              <Button onClick={updateNote} className="mt-4">
-                Update Note
-              </Button>
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">Select a note to edit</p>
-          )}
-        </div>
+                <DialogContent className="max-w-5xl w-[750px]">
+                  <DialogHeader>
+                    <DialogTitle>Note</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4 w-[700px]">
+                    <div className="flex flex-col items-start gap-2 w-[700px]">
+                      <Label htmlFor="name" className="text-right">
+                        Title
+                      </Label>
+                      <Input
+                        id="name"
+                        value={currNote?.topic}
+                        onChange={(e) =>
+                          setCurrNote({ ...currNote, topic: e.target.value })
+                        }
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="flex flex-col items-start gap-2">
+                      <Label htmlFor="username" className="text-right">
+                        Content
+                      </Label>
+                      <Textarea
+                        id="username"
+                        value={currNote?.content}
+                        onChange={(e) =>
+                          setCurrNote({ ...currNote, content: e.target.value })
+                        }
+                        className="col-span-3 h-60"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log("why id", note.id, currNote);
+                        deleteNote(note.id);
+                      }}
+                      variant="destructive"
+                      className=""
+                    >
+                      Delete
+                    </Button>
+                    <Button onClick={updateNote}>Save changes</Button>
+                  </DialogFooter>
+                </DialogContent>
+            </Dialog>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No notes found</p>
+        )}
       </div>
     </div>
   );
