@@ -31,9 +31,8 @@ function Navbar() {
   // border-bottom-right-radius: 50%;
   return (
     <div
-      className={`flex justify-center fixed top-0 w-full ${
-        scrollPosition < 5 ? "bg-transparent" : "bg-white"
-      }`}
+      className={`flex justify-center fixed top-0 w-full ${scrollPosition < 5 ? "bg-transparent" : "bg-white"
+        }`}
     >
       <div className="flex items-center justify-between py-5 max-w-5xl w-[1024px]">
         <div className="">

@@ -19,10 +19,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export function SelectArea({name, areas, keyname, setVal}) {
+
+export function SelectArea({ name, areas, keyname, setVal }) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
-console.log('cct', keyname, areas)
+  console.log('cct', keyname, areas)
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -40,13 +41,14 @@ console.log('cct', keyname, areas)
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
-        <Command className="h-52" >
+        <Command className="h-52">
           <CommandInput placeholder={`Search ${name}...`} />
           <CommandList>
             <CommandEmpty>No {name} found.</CommandEmpty>
             <CommandGroup>
-              {areas?.map((area) => (
+              {areas?.map((area, index) => (
                 <CommandItem
+                  key={index}
                   keyname={area?.[keyname]}
                   value={area?.[keyname]}
                   onSelect={(currentValue) => {

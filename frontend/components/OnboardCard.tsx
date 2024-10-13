@@ -1,8 +1,8 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -10,27 +10,27 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
+  // SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Input, InputProps } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+// import {
+//   Command,
+//   CommandEmpty,
+//   CommandGroup,
+//   CommandInput,
+//   CommandItem,
+//   CommandList,
+// } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
 // import { Input } from "./ui/input";
-import { CountrySelect, PhoneInput } from "./PhoneInput";
-import { ScrollArea } from "./ui/scroll-area";
+import { PhoneInput } from "./PhoneInput";
+// import { ScrollArea } from "./ui/scroll-area";
 import { SelectArea } from "./SelectArea";
 import Loader from "./loader";
 
@@ -65,8 +65,8 @@ const boards = [
   "Others",
 ];
 
-const SelectStandard = ({ setVal }: { setVal: Function }) => {
-  const [select, setSelect] = useState();
+const SelectStandard = ({ setVal }: { setVal: React.Dispatch<React.SetStateAction<string>> }) => {
+  // const [select, setSelect] = useState();
 
   return (
     <div className="flex justify-center gap-4">
@@ -74,25 +74,25 @@ const SelectStandard = ({ setVal }: { setVal: Function }) => {
         value={"Class 11"}
         readOnly
         className="hover:border-black "
-        onClick={(e) => setVal(e.target.value)}
+        onClick={(e) => setVal((e.target as HTMLInputElement).value)}
       />
       <Input
         value={"Class 12"}
         readOnly
         className="hover:border-black"
-        onClick={(e) => setVal(e.target.value)}
+        onClick={(e) => setVal((e.target as HTMLInputElement).value)}
       />
       <Input
         value={"First Time Dropper"}
         readOnly
         className="hover:border-black"
-        onClick={(e) => setVal(e.target.value)}
+        onClick={(e) => setVal((e.target as HTMLInputElement).value)}
       />
       <Input
         value={"Second Time Dropper"}
         readOnly
         className="hover:border-black"
-        onClick={(e) => setVal(e.target.value)}
+        onClick={(e) => setVal((e.target as HTMLInputElement).value)}
       />
     </div>
   );
@@ -107,12 +107,14 @@ function OnboardCard() {
 
   const [val, setVal] = useState("");
 
-  const email = "test@example.com";
+  // const email = "test@example.com";
   // /user/my-notes
   const [country, setCountry] = useState([]);
   const [state, setState] = useState([]);
   const [city, setCity] = useState([]);
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState<{
+    email: string;
+  }>();
   // const [userToken, setUserToken] = useState("");
 
   const userKeys = [
@@ -148,7 +150,7 @@ function OnboardCard() {
       setLoading(false); // Set loading to false once data is fetched or an error occurs
     }
   };
-  const fetchState = async (state) => {
+  const fetchState = async (state: number) => {
     try {
       setLoading(true);
       const stateRes = await axios.get(
@@ -170,7 +172,7 @@ function OnboardCard() {
       setLoading(false); // Set loading to false once data is fetched or an error occurs
     }
   };
-  const fetchCity = async (city) => {
+  const fetchCity = async (city: string) => {
     try {
       setLoading(true);
       const cityRes = await axios.get(
@@ -279,7 +281,7 @@ function OnboardCard() {
     // setUserToken(utoken);
     fetchCountry();
 
-    const user = fetchUser();
+    fetchUser();
 
     //   {
     //     "display_name": "",
@@ -304,7 +306,7 @@ function OnboardCard() {
   //   if (user?.state) fetchCity(user.state);
   // }, [user]);
 
-  const [selin, setSelin] = useState([
+  const [selin] = useState([
     {
       title: "Hey, champ! What's your name?",
       subtitle: "Don't worry. You can change it later.",
@@ -325,7 +327,7 @@ function OnboardCard() {
     {
       title: "Please select your country",
       subtitle: "",
-      comp: (data) => (
+      comp: (data: string[]) => (
         <SelectArea
           name="Country"
           areas={data}
@@ -337,7 +339,7 @@ function OnboardCard() {
     {
       title: "Please select your state",
       subtitle: "",
-      comp: (data) =>
+      comp: (data: string[]) =>
         country && (
           <SelectArea
             name="State"
@@ -350,7 +352,7 @@ function OnboardCard() {
     {
       title: "Please select your city",
       subtitle: "",
-      comp: (data) => (
+      comp: (data: string[]) => (
         <SelectArea
           name="City"
           areas={data}
@@ -378,15 +380,15 @@ function OnboardCard() {
     {
       title: "Please select your Class 12th Board",
       subtitle: "",
-      comp: (setVal) => (
-        <Select onValueChange={setVal}>
+      comp: (setVal: (value: string) => void) => (
+        <Select onValueChange={(value: string) => setVal(value)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Board" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {boards.map((board) => (
-                <SelectItem value={board}>{board}</SelectItem>
+              {boards.map((board, index) => (
+                <SelectItem value={board} key={index}>{board}</SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
@@ -472,25 +474,25 @@ function OnboardCard() {
             <Loader />
           </div>
         ) : ( */}
-          <>
-            {selin?.[step - 1] && <h1 className="text-xl pb-2">{selin[step - 1].title}</h1>}
-            {selin?.[step - 1] && <p>{selin[step - 1].subtitle}</p>}
-            <div className="mt-3 w-full flex justify-center">
-              {selin?.[step - 1] &&
+        <>
+          {selin?.[step - 1] && <h1 className="text-xl pb-2">{selin[step - 1].title}</h1>}
+          {selin?.[step - 1] && <p>{selin[step - 1].subtitle}</p>}
+          <div className="mt-3 w-full flex justify-center">
+            {selin?.[step - 1] &&
 
-                selin[step - 1].comp(
-                  step === 3
-                    ? country
-                    : step === 4
-                      ? state
-                      : step === 5
-                        ? city
-                        : step === 8
-                          ? setVal
-                          : undefined
-                )}
-            </div>
-          </>
+              selin[step - 1].comp(
+                step === 3
+                  ? country
+                  : step === 4
+                    ? state
+                    : step === 5
+                      ? city
+                      : step === 8
+                        ? setVal
+                        : undefined
+              )}
+          </div>
+        </>
         {/* )} */}
       </div>
       <div className="mt-4">

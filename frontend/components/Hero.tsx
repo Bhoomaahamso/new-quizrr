@@ -1,6 +1,6 @@
 "use client";
 
-import { Span } from "next/dist/trace";
+// import { Span } from "next/dist/trace";
 import { Button } from "./ui/button";
 import { Typewriter } from "react-simple-typewriter";
 import Link from "next/link";
@@ -15,8 +15,7 @@ function Hero() {
           <div className="w-[1024px]">
             <div className="mb-6 max-w-2xl">
               <h1 className="text-5xl font-bold mb-4 text-white">
-                Prepare with India's Most Trusted Test Series for
-                {/* typewritter */}
+                Prepare with India&apos;s Most Trusted Test Series for
                 <span className="block text-yellow-300">
                   <Typewriter
                     words={[

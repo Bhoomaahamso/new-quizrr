@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  // DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,7 +25,11 @@ interface Note {
 
 const Notes: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [currNote, setCurrNote] = useState<Note>();
+  const [currNote, setCurrNote] = useState<{
+    id?: string;
+    topic?: string;
+    content?: string;
+  }>();
   const [search, setSearch] = useState("");
   const [searchedNotes, setSearchedNotes] = useState<Note[]>([]);
   const [open, setOpen] = useState(false);
@@ -33,7 +37,8 @@ const Notes: React.FC = () => {
 
   const getNotes = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/user/my-notes", {
+      const SERVER_BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+      const response = await axios.get(`${SERVER_BASE_URL}/user/my-notes`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -45,9 +50,10 @@ const Notes: React.FC = () => {
     }
   };
 
-  const deleteNote = async (id: string) => {
+  const deleteNote = async (id?: string) => {
     try {
-      await axios.delete(`http://localhost:8000/user/my-notes/${currNote.id}`, {
+      const SERVER_BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+      await axios.delete(`${SERVER_BASE_URL}/user/my-notes/${currNote?.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -62,10 +68,11 @@ const Notes: React.FC = () => {
     }
   };
 
-  const createNote = async ({ topic, content }) => {
+  const createNote = async ({ topic, content }: { topic?: string; content?: string }) => {
     try {
+      const SERVER_BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
       const response = await axios.post(
-        "http://localhost:8000/user/my-notes",
+        `${SERVER_BASE_URL}/user/my-notes`,
         {
           topic,
           content,
@@ -77,7 +84,7 @@ const Notes: React.FC = () => {
         }
       );
       setNotes([...(notes ?? []), response.data]);
-      console.log('first',notes)
+      console.log('first', notes)
       await getNotes();
     } catch (error) {
       console.error("Error creating note:", error);
@@ -88,12 +95,12 @@ const Notes: React.FC = () => {
     if (!currNote) return;
 
     try {
-      if (currNote.topic.trim() === "") {
+      if (currNote?.topic?.trim() === "") {
         return;
       }
-
+      const SERVER_BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
       const response = await axios.patch(
-        `http://localhost:8000/user/my-notes/${currNote.id}`,
+        `${SERVER_BASE_URL}/user/my-notes/${currNote.id}`,
         {
           topic: currNote.topic,
           content: currNote.content,
@@ -119,15 +126,16 @@ const Notes: React.FC = () => {
 
   const handleCreate = async () => {
     try {
-      if(!currNote) return
-      if (currNote?.topic.trim() === "") {
+      if (!currNote) return
+      if (currNote?.topic?.trim() === "") {
         return;
       }
       await createNote({
-        topic: currNote.topic.trim(),
-        content: currNote.content.trim(),
+        topic: currNote?.topic?.trim(),
+        content: currNote?.content?.trim(),
       });
     } catch (error) {
+      console.log(error)
     } finally {
       setOpen(false);
     }
@@ -226,53 +234,53 @@ const Notes: React.FC = () => {
                   {note.content}
                 </p>
               </div>
-                <DialogContent className="max-w-5xl w-[750px]">
-                  <DialogHeader>
-                    <DialogTitle>Note</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4 w-[700px]">
-                    <div className="flex flex-col items-start gap-2 w-[700px]">
-                      <Label htmlFor="name" className="text-right">
-                        Title
-                      </Label>
-                      <Input
-                        id="name"
-                        value={currNote?.topic}
-                        onChange={(e) =>
-                          setCurrNote({ ...currNote, topic: e.target.value })
-                        }
-                        className="col-span-3"
-                      />
-                    </div>
-                    <div className="flex flex-col items-start gap-2">
-                      <Label htmlFor="username" className="text-right">
-                        Content
-                      </Label>
-                      <Textarea
-                        id="username"
-                        value={currNote?.content}
-                        onChange={(e) =>
-                          setCurrNote({ ...currNote, content: e.target.value })
-                        }
-                        className="col-span-3 h-60"
-                      />
-                    </div>
+              <DialogContent className="max-w-5xl w-[750px]">
+                <DialogHeader>
+                  <DialogTitle>Note</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4 w-[700px]">
+                  <div className="flex flex-col items-start gap-2 w-[700px]">
+                    <Label htmlFor="name" className="text-right">
+                      Title
+                    </Label>
+                    <Input
+                      id="name"
+                      value={currNote?.topic}
+                      onChange={(e) =>
+                        setCurrNote({ ...currNote, topic: e.target.value })
+                      }
+                      className="col-span-3"
+                    />
                   </div>
-                  <DialogFooter>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log("why id", note.id, currNote);
-                        deleteNote(note.id);
-                      }}
-                      variant="destructive"
-                      className=""
-                    >
-                      Delete
-                    </Button>
-                    <Button onClick={updateNote}>Save changes</Button>
-                  </DialogFooter>
-                </DialogContent>
+                  <div className="flex flex-col items-start gap-2">
+                    <Label htmlFor="username" className="text-right">
+                      Content
+                    </Label>
+                    <Textarea
+                      id="username"
+                      value={currNote?.content}
+                      onChange={(e) =>
+                        setCurrNote({ ...currNote, content: e.target.value })
+                      }
+                      className="col-span-3 h-60"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("why id", note.id, currNote);
+                      deleteNote(note?.id);
+                    }}
+                    variant="destructive"
+                    className=""
+                  >
+                    Delete
+                  </Button>
+                  <Button onClick={updateNote}>Save changes</Button>
+                </DialogFooter>
+              </DialogContent>
             </Dialog>
           ))
         ) : (
