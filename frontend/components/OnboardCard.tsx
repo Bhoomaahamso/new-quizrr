@@ -32,9 +32,7 @@ import {
 import { CountrySelect, PhoneInput } from "./PhoneInput";
 import { ScrollArea } from "./ui/scroll-area";
 import { SelectArea } from "./SelectArea";
-import { getHeapSpaceStatistics } from "v8";
 import Loader from "./loader";
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imx1Y2t5QGdtYWlsLmNvbSIsImV4cCI6MTcyODU2MzgwMywiaWQiOjEsInVzZXJuYW1lIjoiTHVja3kgR295YWwifQ.2Gwz97zdrfTTi_4kpze8LTUxR3Y3zcj2SHRJLKaTwuM
 
 const boards = [
   "Indian School Certificate (ISC)",
